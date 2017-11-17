@@ -182,6 +182,7 @@ public class JanelaBD extends javax.swing.JFrame {
                 modelo.addRow(new Object[]{v.getId(),v.getNome(),v.getIdade(),v.getEntrada(),v.getSaida()});
             
             }
+            tabela.clearSelection();
         } catch (SQLException ex) {
             Logger.getLogger(JanelaBD.class.getName()).log(Level.SEVERE, null, ex);
         }
