@@ -21,19 +21,15 @@ public class JavaApplication18 {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) throws SQLException {
-        try {
-            Class.forName("org.apache.derby.jdbc.ClientDriver");
-            String driverURL = "jdbc:derby://localhost:1527/2017-3-DCC171";
-            Connection conexao = DriverManager.getConnection(driverURL,"usuario","senha");
-            JanelaBD janela = new JanelaBD(conexao);
+    public static void main(String[] args) throws SQLException, Exception {
+        
+            VisitanteDAO v = new VisitanteDAO();
+            JanelaBD janela = new JanelaBD(v);
             janela.setLocationRelativeTo(null);
             janela.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             janela.setVisible(true);
-            janela.consultaBD(conexao);
-        } catch (Exception ex) {
-            Logger.getLogger(JavaApplication18.class.getName()).log(Level.SEVERE, null, ex);
-        }
+            janela.consultaBD();
+        
     }
     
 }

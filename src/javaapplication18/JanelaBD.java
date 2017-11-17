@@ -9,6 +9,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
@@ -23,10 +24,11 @@ public class JanelaBD extends javax.swing.JFrame {
     /**
      * Creates new form JanelaBD
      */
+    VisitanteDAO visitantes;
     Connection conexao;
-    public JanelaBD(Connection cx) {
+    public JanelaBD(VisitanteDAO v) {
         initComponents();
-        conexao = cx;
+        visitantes = v;
     }
     
     /**
@@ -142,11 +144,12 @@ public class JanelaBD extends javax.swing.JFrame {
     private void bntEntradaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bntEntradaActionPerformed
         if(!txtNome.getText().trim().isEmpty()&& !txtIdade.getText().trim().isEmpty()){
             try {
-                String sql = String.format("INSERT INTO visitante (nome,idade) VALUES ('%s',%s)",txtNome.getText(),txtIdade.getText());
-                Statement operacao = conexao.createStatement();
-                operacao.executeUpdate(sql);
+                Visitante v = new Visitante();
+                v.setNome(txtNome.getText());
+                v.setIdade(Integer.parseInt(txtIdade.getText()));
+                visitantes.criar(v);
                 System.out.println("inserido");
-                consultaBD(conexao);
+                consultaBD();
             } catch (SQLException ex) {
                 Logger.getLogger(JanelaBD.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -158,11 +161,9 @@ public class JanelaBD extends javax.swing.JFrame {
     private void btnSaidaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaidaActionPerformed
         if(tabela.getSelectedRow()!=-1){
             try {
-                int id = (int)tabela.getModel().getValueAt(tabela.getSelectedRow(),0);
-                Statement operacao = conexao.createStatement();
-                String sql = String.format("UPDATE visitante SET saida = CURRENT_TIMESTAMP WHERE id=%s AND saida IS NULL",id);
-                operacao.executeUpdate(sql);
-                consultaBD(conexao);
+                Long id = (Long)tabela.getModel().getValueAt(tabela.getSelectedRow(),0);
+                visitantes.saida(id);
+                consultaBD();
             } catch (SQLException ex) {
                 Logger.getLogger(JanelaBD.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -171,19 +172,14 @@ public class JanelaBD extends javax.swing.JFrame {
         }
         
     }//GEN-LAST:event_btnSaidaActionPerformed
-    public void consultaBD(Connection conexao){
+    public void consultaBD() throws SQLException{
         try {
             DefaultTableModel modelo = (DefaultTableModel)tabela.getModel();
-            Statement operacao = conexao.createStatement();
-            ResultSet resultado = operacao.executeQuery("SELECT id, nome,idade,entrada,saida FROM visitante");
+            List<Visitante> dados = visitantes.listar();
             modelo.getDataVector().clear();
-            while(resultado.next()){
-                Integer id = resultado.getInt("id");
-                String nome = resultado.getString("nome");
-                Integer idade = resultado.getInt("idade");
-                String entrada = resultado.getString("entrada");
-                String saida = resultado.getString("saida");
-                modelo.addRow(new Object[]{id,nome,idade,entrada,saida});
+            for(Visitante v: dados){
+                
+                modelo.addRow(new Object[]{v.getId(),v.getNome(),v.getIdade(),v.getEntrada(),v.getSaida()});
             
             }
         } catch (SQLException ex) {
